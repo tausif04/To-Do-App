@@ -2,8 +2,9 @@ from django.shortcuts import render,redirect,get_object_or_404
 from django.urls import reverse
 from django.http import HttpResponse
 from django.contrib.auth.decorators import login_required
-from .forms import UserRegistrationForm
+from .forms import UserRegistrationForm, TaskForm
 from django.contrib.auth import login
+from .models import Task
 
 
 
@@ -31,4 +32,22 @@ def register(request):
     else:
         form = UserRegistrationForm()
     return render(request, 'todoapp/register.html',{'form':form})
+@login_required
+def task_list(request):
+    tasks = Task.objects.filter(user=request.user).order_by("-created_at")
+    return render(request, "todoapp/task_list.html",{"tasks": tasks})
+
+
+@login_required
+def create_task(request):
+    if request.method == 'POST':
+        form = TaskForm(request.POST)
+        if form.is_valid():
+            task = form.save(commit=False)
+            task.user = request.user  # Set the user to the currently logged-in user
+            task.save()
+            return redirect('task_list')
+    else:
+        form = TaskForm()
+    return render(request, 'todoapp/create_task.html', {'form': form})
 
