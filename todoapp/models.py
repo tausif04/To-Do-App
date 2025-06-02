@@ -28,16 +28,12 @@ class Task(models.Model):
         ('completed', 'Completed'),
     ]
 
-    CATEGORY_CHOICE = [
-        ('work', 'Work'),
-        ('personal', 'Personal'),
-        ('study', 'Study'),
-        ('others', "Others")
-    ]
+  
+
 
     title = models.CharField(max_length=200)
     description = models.TextField(blank=True)
-    category = models.ForeignKey(Category,choices=CATEGORY_CHOICE, on_delete=models.CASCADE, related_name='tasks')
+    category = models.ForeignKey(Category, on_delete=models.CASCADE, related_name='tasks')
     priority = models.CharField(max_length=10, choices=PRIORITY_CHOICES, default='medium')
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='pending')
     due_date = models.DateTimeField(null=True, blank=True)

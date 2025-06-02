@@ -9,18 +9,12 @@ from .models import Task
 
 
 # Create your views here.
-def hello(request):
-    return HttpResponse("Hello, world. You're at the polls index.")
 
 @login_required
 def hello_protected(request):
     user = request.user  # Get the currently logged-in user
     return render(request,"todoapp/protected.html",{"user":user})
        
-
-def index(request):
-    return HttpResponse("Hello, world. You're at the polls index.")
-
 def register(request):
     if request.method =='POST':
         form = UserRegistrationForm(request.POST)
@@ -28,10 +22,11 @@ def register(request):
             user = form.save()
             login(request,user) # Automatically log in the user after registration
             # return redirect('login')
-            return redirect('hello_protected')#jon@example.com-->@jon23457
+            return redirect('task_list')#jon@example.com-->@jon23457|| new@gamil.com-->54321new
     else:
         form = UserRegistrationForm()
     return render(request, 'todoapp/register.html',{'form':form})
+
 @login_required
 def task_list(request):
     tasks = Task.objects.filter(user=request.user).order_by("-created_at")
@@ -51,3 +46,21 @@ def create_task(request):
         form = TaskForm()
     return render(request, 'todoapp/create_task.html', {'form': form})
 
+@login_required
+def task_edit(request,pk):
+    task = get_object_or_404(Task , pk=pk , user=request.user)
+    if request.method == 'POST':
+        form = TaskForm(request.POST , instance=task)
+        if form.is_valid():
+            form.save()
+            return redirect('task_list') 
+    else:
+        form = TaskForm(instance=task)
+    return render(request,'todoapp/create_task.html',{'form':form})
+
+@login_required
+def task_delete(request,pk):
+    task=get_object_or_404(Task,pk=pk,user=request.user)
+    if request.method == 'POST':
+        task.delete()
+    return redirect('task_list')
